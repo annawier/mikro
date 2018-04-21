@@ -414,9 +414,10 @@ for(i in team_attr_list) {
 tail(sd_glm_merged_3)
 table(sd_glm_merged_3$O_buildUpPlayDribblingClass)
 
-
+sd_glm_merged_2
+sd_glm_merged_3
 
 # DRUZYNA PRZECIWNA <end>####
 
-sd_nona <- sd_glm_merged_3 [ which(gender=='F' & age > 65),]
+
 
