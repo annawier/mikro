@@ -175,6 +175,8 @@ brant(soccer_model)
 #zrodlo: https://stats.stackexchange.com/questions/7720/how-to-understand-output-from-rs-polr-function-ordered-logistic-regression
 pchisq(deviance(soccer_model), df.residual(soccer_model))
 #UWAGA! Podejrzany wynik... 
+TIW <- 2*(subset(R2s, ,select=logLik) - subset(R2s, ,select=logLik0))
+pchisq(as.numeric(TIW), p, ncp = 0)
 
 
 #2. pseudo R2
