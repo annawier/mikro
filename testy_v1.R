@@ -122,26 +122,53 @@ sd_glm_merged_2$result <- as.factor(sd_glm_merged_2$result)
 sd_glm_merged_3$result <- as.factor(sd_glm_merged_3$result)
 
 
+
+
+
 soccer_model  <- 
   polr(result ~ home_or_away
        + buildUpPlaySpeedClass
-       + buildUpPlayDribblingClass
-       + buildUpPlayPassingClass
-       + buildUpPlayPositioningClass
-       + chanceCreationPassingClass
-       + chanceCreationCrossingClass
-       + chanceCreationShootingClass
-       + chanceCreationPositioningClass
-       + defencePressureClass
-       + defenceAggressionClass
-       + defenceTeamWidthClass
-       + defenceDefenderLineClass
+       #+ buildUpPlayDribblingClass
+       #+ buildUpPlayPassingClass
+       #+ buildUpPlayPositioningClass
+       #+ chanceCreationPassingClass
+       #+ chanceCreationCrossingClass
+       #+ chanceCreationShootingClass
+       #+ chanceCreationPositioningClass
+       #+ defencePressureClass
+       #+ defenceAggressionClass
+       #+ defenceTeamWidthClass
+       #+ defenceDefenderLineClass
        , data = sd_glm_merged_2
        , Hess=TRUE)
 
+
+
+
+
+
+
 summary(soccer_model)
+#liczba parametrów bez progów
+p=length(coef(soccer_model))
+#liczba parametrów z programi
+P=length(coef(soccer_model))+2  
+
+install.packages("DescTools")
+library(DescTools)
+R2s<- PseudoR2(soccer_model, which="all")
+R2s <- as.data.frame(t(R2s))
+install.packages("DAMisc")
+library(DAMisc)
+other_fit <- ordfit(soccer_model)
+other_fit <- t(other_fit)
+
 
 ##checklist:
+#O. brant test
+brant(soccer_model)
+
+
 #1. laczna istotnosc wszystkich zmiennych - test ilorazu wiarygodnosci
 #test moze sluzyc do porownywania modeli zagniezdzonych (forward/backward variable selection)
 #test ten moze sluzyc do oceny homogenicznosci grupy
@@ -152,38 +179,39 @@ pchisq(deviance(soccer_model), df.residual(soccer_model))
 
 #2. pseudo R2
 # https://www.rdocumentation.org/packages/DescTools/versions/0.99.19/topics/PseudoR2
-install.packages("DescTools")
-library(DescTools)
-R2s<- PseudoR2(soccer_model, which="all")
 
-# - McKelvey and Zavoina - nie policzyl sie
 
+# - McKelvey and Zavoina 
+subset(R2s, ,select=McKelveyZavoina)
+other_fit[[6]]
 # - McFadden
-
+subset(R2s, ,select=McFadden)
 # - McFadden adj
-
-# - Maximum Likelihood R2
-
-# - Cragg and Uhler
-
-R2s <- as.data.frame(t(R2s))
-R2s
-colnames(R2s)
-
-2*(getElement(R2s, "logLik")-getElement(R2s, "logLik0"))
+1-(subset(R2s, ,select=logLik)-p)/subset(R2s, ,select=logLik0)
+# - Maximum Likelihood R2 (Cox Snell)
+subset(R2s, ,select=CoxSnell)
+# - Cragg and Uhler (Nagelkerke)
+subset(R2s, ,select=Nagelkerke)
 
 
 
 #3. kryteria informacyjne AIC BIC
 # AIC - output polr
-# AIC corrected
-R2s<- PseudoR2(soccer_model, which="all")
+subset(R2s, ,select=AIC)
+#BIC
+subset(R2s, ,select=BIC)
+#BIC corrected
 
 
 #zdolnosc predykcyjna modelu
 # count R2
+other_fit[[1]]
 # count R2 Adj
+other_fit[[2]]
 
 
 
+df = data.frame(n, s, b)  
 
+data.frame(Date=as.Date("01/01/2000", format="%m/%d/%Y"), 
+           )
