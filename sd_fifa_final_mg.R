@@ -179,8 +179,21 @@ library(dplyr)
 library(plyr)
 head(sd_team_attr_def)
 
+sd_team_attr_def<-sd_team_attr
+
 sd_team_attr_def$ID <- seq.int(nrow(sd_team_attr_def))
-sd_team_attr_def <- sd_team_attr_def[sd_team_attr_def$ID != '861',]
+
+nrow(unique(sd_team_attr_def[, c("team_api_id", "date")]))
+
+#Tutaj auto usuwanie duplikatów
+n_occur <- data.frame(table(sd_team_attr_def[, c("team_api_id", "date")]))
+#n_occur[857:864,]
+#n_occur[n_occur=='863']
+unique(n_occur[n_occur$Freq > 1,'team_api_id'])
+
+sd_team_attr_def<-sd_team_attr_def[!(sd_team_attr_def$team_api_id %in% n_occur[n_occur$Freq > 1,'team_api_id']),]
+
+#sd_team_attr_def <- sd_team_attr_def[sd_team_attr_def$ID != '861',]
 
 sd_team_attr_def<-transform(sd_team_attr_def, Rank = ave (date, team_api_id, 
                                                           FUN = function(x) rank (x, ties.method ="min")))
@@ -240,12 +253,15 @@ sd_fifa <- lDataFrames$Player_Attributes
 head(sd_fifa)
 
 #TUTaj niby jest SPRAWDZANIE UNIKATÓW
-nrow(unique(sd_fifa[, c("player_api_id", "date")]))
 
-check<-sqldf("SELECT player_api_id, date, count(potential) as count  from sd_fifa group by player_api_id, date order by player_api_id, date, count desc")
-head(check)
-tail(check)
-nrow(check)
+
+n_occur <- data.frame(table(sd_fifa[, c("player_api_id", "date")]))
+#n_occur[857:864,]
+#n_occur[n_occur=='863']
+unique(n_occur[n_occur$Freq > 1,'player_api_id'])
+
+sd_fifa<-sd_fifa[!(sd_fifa$player_api_id %in% n_occur[n_occur$Freq > 1,'player_api_id']),]
+
 
 sd_fifa<-transform(sd_fifa, Rank = ave (date, player_api_id, 
                                         FUN = function(x) rank (x, ties.method ="min")))
@@ -271,8 +287,6 @@ sd_fifa_dates$date <- as.Date(sd_fifa_dates$date)
 data.class(sd_fifa_dates$date_end)
 data.class(sd_fifa_dates$date)
 #data.class(sd_glm$match_date)
-
-unique()
 
 
 library(lubridate)
