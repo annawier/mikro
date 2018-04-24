@@ -185,7 +185,7 @@ sd_team_attr_def$ID <- seq.int(nrow(sd_team_attr_def))
 
 nrow(unique(sd_team_attr_def[, c("team_api_id", "date")]))
 
-#Tutaj auto usuwanie duplikat體
+#Tutaj auto usuwanie duplikat贸w
 n_occur <- data.frame(table(sd_team_attr_def[, c("team_api_id", "date")]))
 #n_occur[857:864,]
 #n_occur[n_occur=='863']
@@ -252,7 +252,7 @@ sd_fifa <- lDataFrames$Player_Attributes
 
 head(sd_fifa)
 
-#TUTaj niby jest SPRAWDZANIE UNIKAT覹
+#TUTaj niby jest SPRAWDZANIE UNIKAT脫W
 
 
 n_occur <- data.frame(table(sd_fifa[, c("player_api_id", "date")]))
@@ -329,19 +329,47 @@ for(i in c("player_2","player_3","player_4","player_5")){
   sd_glm_merged_fifa <-sqldf(sql_content1)
 }
 
-#FINALNA
-sql_content
-sql_content1
+
+#Zbucketowanie!
 
 sd_glm_merged_fifa<-unique(sd_glm_merged_fifa) 
+sd_glm_merged_fifa_O<-sd_glm_merged_fifa
 
+
+
+stare_nazwy<-colnames(sd_glm_merged_fifa)[80:135]
+
+for(i in stare_nazwy){
+
+newname_O<-paste(i,"_O",sep="")  
+
+sd_glm_merged_fifa_O[,c(newname_O)]<-ifelse(sd_glm_merged_fifa[,c(i)] < 65 , "LOW", 
+       ifelse(sd_glm_merged_fifa[,c(i)] > 80 , "HIGH", "MED"))
+
+}
+
+sd_glm_merged_fifa_O<-sd_glm_merged_fifa_O[,-which(names(sd_glm_merged_fifa_O) %in% stare_nazwy)]
+
+#Ostateczna baza powyzej
+
+
+
+hist(sd_glm_merged_fifa$player_2_jumping)
+hist(sd_glm_merged_fifa$player_3_jumping)
+hist(sd_glm_merged_fifa$player_2_interceptions)
+hist(sd_glm_merged_fifa$player_4_standing_tackle)
+hist(sd_glm_merged_fifa$player_5_positioning)
+
+#65
+
+#80
 
 #ANALIZA POZYCJI #####
 
 #Laczenie nazw lig
-#L1cznienie nazw zespo3體
+#L1cznienie nazw zespo3贸w
 #Laczenie nazw graczy
-#Filtrowanie kilk najlepszych team體 i wybranie kilku meczu swiezych i check linupo體
+#Filtrowanie kilk najlepszych team贸w i wybranie kilku meczu swiezych i check linupo贸w
 
 
 sd_league <- lDataFrames$League
@@ -409,7 +437,7 @@ sd_fifa <- lDataFrames$Player_Attributes
 
 #DRUZYNA PRZECIWNA <begin>####
 
-colnames(sd_glm_merged_fifa)
+colnames(sd_glm_merged_fifa_O)
 
 sd_glm_merged_2 <- sqldf("select a.*,
                          c.buildUpPlaySpeedClass as O_buildUpPlaySpeedClass,
@@ -424,7 +452,7 @@ sd_glm_merged_2 <- sqldf("select a.*,
                          c.defenceAggressionClass as O_defenceAggressionClass,
                          c.defenceTeamWidthClass as O_defenceTeamWidthClass,
                          c.defenceDefenderLineClass as O_defenceDefenderLineClass
-                         from sd_glm_merged a
+                         from sd_glm_merged_fifa_O a
                          left join sd_team_attr_def_dates c
                          on a.opponent_team_api_id=c.team_api_id 
                          and a.date between c.date and c.date_end")
@@ -458,4 +486,6 @@ sd_glm_merged_3
 
 
 # DRUZYNA PRZECIWNA <end>####
+
+
 
